@@ -1,4 +1,5 @@
 function completeTab(){
+    let count = 0;
     const tbody = document.querySelector('#tab tbody');
 
     // Fusionner les deux tableaux
@@ -13,6 +14,11 @@ function completeTab(){
     <td>${obs.CODE_INSEE}</td>
     <td>${obs.DATE_OBS}</td>`;
     tbody.appendChild(row);
+    count++;
+    if (count >= 5){
+        console.log(count);
+        return;
+    }
     });
 }
 
