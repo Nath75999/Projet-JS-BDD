@@ -1,8 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DataBase</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -13,11 +12,25 @@
             <input class="recherche" type="text" name="q" placeholder="Rechercher...">
             <button class="recherche" type="submit">🔍</button>
         </form>
-        <table id="tab">
-        </table>
     </fieldset>
-    
-    
+    <table id="tab">
+        <thead>
+            <tr>
+                <th>Nom scientifique</th>
+                <th>Nom français</th>
+                <th>Commune</th>
+                <th>Code INSEE</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
+
+    <script src="inventaireFaune.js"></script>
+    <script src="inventaireFlore.js"></script>
+    <script src="main.js"></script>
 </body>
 <footer>
     <p>
