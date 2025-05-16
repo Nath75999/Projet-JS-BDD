@@ -1,1 +1,32 @@
+body{
+    font-size: 25px;
+    border-color: black;
+    border-style: groove;
+    border: 5px;
+}
 
+h1{
+    text-align: center;
+    text-transform: uppercase;
+}
+
+footer{
+    font-style: italic;
+    margin-left: 80%;
+    font-size: 15px;
+}
+
+.recherche{
+    font-size: 25px;
+}
+
+table{
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th, td {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: left;
+  }

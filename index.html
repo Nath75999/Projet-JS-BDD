@@ -1,1 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>DataBase</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Faune et Flore en Haute Seine🌿🐐</h1>
 
+    <fieldset>
+        <!-- Ajout de l'ID ici -->
+        <form id="searchForm" action="/recherche" method="GET">
+            <input class="recherche" type="text" name="q" placeholder="Rechercher...">
+            <button class="recherche" type="submit">🔍</button>
+        </form>
+    </fieldset>
+
+    <table id="tab">
+        <thead>
+            <tr>
+                <th>Nom scientifique</th>
+                <th>Nom français</th>
+                <th>Commune</th>
+                <th>Code INSEE</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Le tableau sera rempli par le JS -->
+        </tbody>
+    </table>
+
+    <script src="inventaireFaune.js"></script>
+    <script src="inventaireFlore.js"></script>
+    <script src="main.js"></script>
+</body>
+
+<footer>
+    <p>
+        made by: Nathan, Robin and Flavien
+    </p>
+</footer>
+</html>
