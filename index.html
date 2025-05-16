@@ -7,12 +7,15 @@
 </head>
 <body>
     <h1>Faune et Flore en Haute Seine🌿🐐</h1>
+
     <fieldset>
-        <form action="/recherche" method="GET">
+        <!-- Ajout de l'ID ici -->
+        <form id="searchForm" action="/recherche" method="GET">
             <input class="recherche" type="text" name="q" placeholder="Rechercher...">
             <button class="recherche" type="submit">🔍</button>
         </form>
     </fieldset>
+
     <table id="tab">
         <thead>
             <tr>
@@ -24,7 +27,7 @@
             </tr>
         </thead>
         <tbody>
-
+            <!-- Le tableau sera rempli par le JS -->
         </tbody>
     </table>
 
@@ -32,6 +35,7 @@
     <script src="inventaireFlore.js"></script>
     <script src="main.js"></script>
 </body>
+
 <footer>
     <p>
         made by: Nathan, Robin and Flavien
