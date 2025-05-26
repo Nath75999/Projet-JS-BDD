@@ -1,180 +1,143 @@
-let allData = [];
-let filteredData = [];
-let activeFilters = {}; //stocke filtres actifs
+let allData = [];          
+let activeFilters = {};
+let searchQuery = "";       //champ de recherche
 
-//cree une ligne HTML pour une observation
 function addRow(obs) {
     const tbody = document.querySelector('#tab tbody');
     const row = document.createElement('tr');
     row.innerHTML = `
-    <td>${obs.NOM_SC}</td>
-    <td>${obs.NOM_FR}</td>
-    <td>${obs.COMMUNE}</td>
-    <td>${obs.CODE_INSEE}</td>
-    <td>${obs.DATE_OBS}</td>
-  `;
+        <td>${obs.NOM_SC}</td>
+        <td>${obs.NOM_FR}</td>
+        <td>${obs.COMMUNE}</td>
+        <td>${obs.CODE_INSEE}</td>
+        <td>${obs.DATE_OBS}</td>
+    `;
     tbody.appendChild(row);
 }
 
-function applyFilters() {
-    filteredData = allData.filter(item => {
-        // Teste chaque filtre actif
-        return Object.entries(activeFilters).every(([key, filter]) => {
-            if (key === "DATE_OBS") {
-                return item[key]?.startsWith(filter); // filtre par année
-            } else {
-                return item[key] === filter;
-            }
-        });
-    });
-    renderTable(filteredData);
-}
-
-//affiche toutes les donnees dans le tab
-function completeTab() {
-    allData = [...faune, ...flore];
-    renderTable(allData);
-}
-
-//affiche un tab avec un tab donné
 function renderTable(data) {
     const tbody = document.querySelector('#tab tbody');
     tbody.innerHTML = '';
     data.forEach(obs => addRow(obs));
 }
 
-//cree un menu deroulant de filtres
-function createDropdown(values, key, thElement, filterFn = (a, b) => a === b) {
+function applyFilters() {
+    const filteredData = allData.filter(obs => {
+        // Vérifie chaque filtre actif
+        const matchesFilters = Object.entries(activeFilters).every(([key, value]) => { //pour tout les elem du tab
+            if (key === "DATE_OBS"){ //si bon filtre
+                return obs[key]?.startsWith(value); //trie par année
+            }
+            return obs[key] === value;
+        });
+
+        //verif pour recherche texte
+        const matchesSearch = obs.NOM_FR.toLowerCase().includes(searchQuery);
+
+        return matchesFilters && matchesSearch;//on applique les deux filtres
+    });
+
+    renderTable(filteredData);
+}
+
+function loadAllData() {
+    allData = [...faune, ...flore];  //fusionne les deux tab en 1
+    renderTable(allData);
+}
+
+function createDropdown(options, key, thElement) {
     const existing = document.querySelector(".dropdown");
     if (existing) existing.remove();
 
     const dropdown = document.createElement("div");
     dropdown.className = "dropdown";
 
-    const rect = thElement.getBoundingClientRect();
+    const rect = thElement.getBoundingClientRect(); //pos header
     dropdown.style.left = rect.left + "px";
     dropdown.style.top = (rect.bottom + window.scrollY) + "px";
-    const allOption = document.createElement("div");
-    allOption.textContent = "Tout afficher";
-    allOption.className = "dropdown-item";
-    allOption.onclick = () => {
-        delete activeFilters[key]; //supprime le filtre courant
+
+    const showAllOption = document.createElement("div");
+    showAllOption.textContent = "Tout afficher";
+    showAllOption.className = "dropdown-item";
+    showAllOption.onclick = () => {
+        delete activeFilters[key];  //retire filtre
         applyFilters();
         dropdown.remove();
     };
-    dropdown.appendChild(allOption);
+    dropdown.appendChild(showAllOption);
 
-    values.forEach(value => {
-        const option = document.createElement("div");
-        option.textContent = value;
-        option.className = "dropdown-item";
-        option.onclick = () => {
-            activeFilters[key] = value; //ajoute ou remplace le filtre
+    options.forEach(value => {
+        const item = document.createElement("div");
+        item.textContent = value;
+        item.className = "dropdown-item";
+        item.onclick = () => {
+            activeFilters[key] = value;  //nouveau filtrage
             applyFilters();
             dropdown.remove();
         };
-        dropdown.appendChild(option);
+        dropdown.appendChild(item);
     });
 
     document.body.appendChild(dropdown);
 }
 
-function searchWithForm(event) {
-    event.preventDefault(); //empeche le rechargement
-
-    const inputValue = event.target.q.value.trim().toLowerCase();
-
-    const filtered = allData.filter(obs =>
-        obs.NOM_FR.toLowerCase().includes(inputValue)
-    );
-
-    renderTable(filtered);
-}
-
-//active les filtres sur les colonnes du tab
 function enableFiltering() {
-    const ths = document.querySelectorAll("#tab thead th");
+    const headers = document.querySelectorAll("#tab thead th");
 
-    ths[2].innerHTML += ' <span class="filter-icon">▼</span>';
-    ths[4].innerHTML += ' <span class="filter-icon">▼</span>';
+    headers[2].innerHTML += ' <span class="filter-icon">▼</span>'; //pour les communes
+    headers[4].innerHTML += ' <span class="filter-icon">▼</span>'; //pour les dates
 
-    //filtre pour commune
-    ths[2].style.cursor = "pointer";
-    ths[2].addEventListener("click", () => {
-        const communes = [...new Set(allData.map(d => d.COMMUNE))].sort();
-        createDropdown(communes, "COMMUNE", ths[2]);
+    headers[2].style.cursor = "pointer";
+    headers[2].addEventListener("click", () => {
+        const communes = [...new Set(allData.map(d => d.COMMUNE))].sort(); //val triees
+        createDropdown(communes, "COMMUNE", headers[2]);
     });
 
-    //filtre par année d'observation
-    ths[4].style.cursor = "pointer";
-    ths[4].addEventListener("click", () => {
-        const years = [...new Set(allData.map(d => d.DATE_OBS?.slice(0, 4)))].sort();
-        createDropdown(years, "DATE_OBS", ths[4], (fullDate, year) => fullDate.startsWith(year));
+    headers[4].style.cursor = "pointer";
+    headers[4].addEventListener("click", () => {
+        let allYears = allData.map(d => { //on prend les années
+            if (d.DATE_OBS){ //si c'est celle demandée
+                return d.DATE_OBS.slice(0, 4); // retourne l'année
+            }
+            return null; //si pas bon, rien a retourner
+        });
+
+        allYears = allYears.filter(year => year !== null); //on retire les dates à NULL (inutiles)
+
+        const uniqueYears = [...new Set(allYears)]; //on enleve les doubles
+        uniqueYears.sort(); //tri dans l'ordre croissant
+
+        createDropdown(uniqueYears, "DATE_OBS", headers[4]);
     });
 }
 
-//ferme menu si clic en dehors
+function handleSearch(event) {
+    event.preventDefault(); //empeche reload page
+
+    const input = event.target.q.value.trim().toLowerCase(); //res recherche
+    searchQuery = input; //maj res recherche
+    applyFilters();
+}
+
 document.addEventListener("click", function (event) {
     const dropdown = document.querySelector(".dropdown");
     if (dropdown) {
-        const isClickInsideDropdown = dropdown.contains(event.target);
-        const isClickOnHeader = event.target.closest("th");
-        if (!isClickInsideDropdown && !isClickOnHeader) {
-            dropdown.remove();
+        const clickedInside = dropdown.contains(event.target);
+        const clickedOnHeader = event.target.closest("th");
+        if (!clickedInside && !clickedOnHeader) {
+            dropdown.remove(); //ferme le menu si click a coté
         }
     }
 });
 
-//fonction principale
 function main() {
-    allData = [...faune, ...flore];
-    completeTab();
+    loadAllData();
     enableFiltering();
 
     const form = document.getElementById('searchForm');
     if (form) {
-        form.addEventListener('submit', searchWithForm);
+        form.addEventListener('submit', handleSearch);
     }
-}
-
-
-//maj de la recherche en preanant en compte les filtres déjà entrés
-function searchWithForm(event) {
-    event.preventDefault(); //empeche la page de se recharger
-
-    const inputValue = event.target.q.value.trim().toLowerCase();
-
-    //on filtre d'abord avec les filtres actifs
-    const filtered = allData.filter(obs => {
-        //filtres actifs
-        const matchesFilters = Object.entries(activeFilters).every(([key, filter]) => {
-            if (key === "DATE_OBS") {
-                return obs[key]?.startsWith(filter);
-            } else {
-                return obs[key] === filter;
-            }
-        });
-
-        //regarder si les filtres correspondent aussi à la recherche
-        return matchesFilters && obs.NOM_FR.toLowerCase().includes(inputValue);
-    });
-
-    renderTable(filtered);
-}
-
-//fonction pour appliquer les filtres après chaque changement de recherche par exemple
-function applyFilters() {
-    filteredData = allData.filter(item => {
-        return Object.entries(activeFilters).every(([key, filter]) => {
-            if (key === "DATE_OBS") {
-                return item[key]?.startsWith(filter);
-            } else {
-                return item[key] === filter;
-            }
-        });
-    });
-
-    renderTable(filteredData);
 }
 
 main();
