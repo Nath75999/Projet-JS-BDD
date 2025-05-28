@@ -2,7 +2,7 @@ let allData = [];
 let activeFilters = {};
 let searchQuery = "";       //champ de recherche
 
-function addRow(obs) {
+function addRow(obs){
     const tbody = document.querySelector('#tab tbody');
     const row = document.createElement('tr');
     row.innerHTML = `
@@ -15,18 +15,18 @@ function addRow(obs) {
     tbody.appendChild(row);
 }
 
-function renderTable(data) {
+function renderTable(data){
     const tbody = document.querySelector('#tab tbody');
     tbody.innerHTML = '';
     data.forEach(obs => addRow(obs));
 }
 
-function applyFilters() {
+function applyFilters(){
     const filteredData = allData.filter(obs => {
         // Vérifie chaque filtre actif
         const matchesFilters = Object.entries(activeFilters).every(([key, value]) => { //pour tout les elem du tab
             if (key === "DATE_OBS"){ //si bon filtre
-                return obs[key]?.startsWith(value); //trie par année
+                return obs[key] && obs[key].startsWith(value); //si ca existe et que ca passe dans le filtre
             }
             return obs[key] === value;
         });
